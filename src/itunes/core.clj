@@ -11,12 +11,13 @@
 (def data
   (-> path slurp parse-str))
 
-(defn- transform-value [{:keys [tag content]}]
+(defn- transform-value [{tag :tag
+                         [content] :content}]
   (let [date-format (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ssX")]
     (case tag
-      :integer (Long/parseLong (first content))
-      :string (first content)
-      :date (.parse date-format (first content))
+      :integer (Long/parseLong content)
+      :string content
+      :date (.parse date-format content)
       :true true)))
 
 (defn- transform-track [track]
@@ -39,3 +40,15 @@
        :content
        (remove #(= (:tag %) :key))
        (map transform-track)))
+
+(comment
+  ;; top 50 tracks
+  (->> tracks
+       (sort-by :play-count)
+       reverse
+       (map (juxt :name :play-count))
+       (take 50))
+  ;; kinds of tracks
+  (->> tracks
+       (map :kind)
+       frequencies))
