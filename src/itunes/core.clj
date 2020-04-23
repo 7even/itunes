@@ -23,7 +23,8 @@
       :integer (Long/parseLong content)
       :string content
       :date (.parse date-format content)
-      :true true)))
+      :true true
+      :false false)))
 
 (defn- transform-track [track]
   (->> track
