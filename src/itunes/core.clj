@@ -5,9 +5,12 @@
             [table.core :refer [table]])
   (:import [java.text SimpleDateFormat]))
 
+(def relative-path
+  (or (System/getenv "XML_PATH")
+      "~/Music/iTunes/iTunes Music Library.xml"))
+
 (def path
-  (let [relative-path "~/Music/iTunes/iTunes Music Library.xml"]
-    (:out (sh "bash" "-c" (str "echo -n " relative-path)))))
+  (:out (sh "bash" "-c" (str "echo -n " relative-path))))
 
 (def data
   (-> path slurp parse-str))
