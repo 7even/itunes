@@ -1,7 +1,8 @@
 (ns itunes.core
   (:require [camel-snake-kebab.core :refer [->kebab-case-keyword]]
             [clojure.data.xml :refer [parse-str]]
-            [clojure.java.shell :refer [sh]])
+            [clojure.java.shell :refer [sh]]
+            [table.core :refer [table]])
   (:import [java.text SimpleDateFormat]))
 
 (def path
@@ -10,6 +11,10 @@
 
 (def data
   (-> path slurp parse-str))
+
+(defn- get-content [node]
+  (->> (:content node)
+       (filter map?)))
 
 (defn- transform-value [{tag :tag
                          [content] :content}]
@@ -22,7 +27,7 @@
 
 (defn- transform-track [track]
   (->> track
-       :content
+       get-content
        (partition 2)
        (reduce (fn [m [k v]]
                  (assoc m
@@ -32,14 +37,24 @@
 
 (def tracks
   (->> data
-       :content
+       get-content
        first
-       :content
+       get-content
        (drop-while #(not= (:content %) '("Tracks")))
        second
-       :content
+       get-content
        (remove #(= (:tag %) :key))
        (map transform-track)))
+
+(defn -main []
+  (println "Top 50 tracks")
+  (table (->> tracks
+              (sort-by :play-count)
+              reverse
+              (map #(select-keys % [:name :album :play-count]))
+              (take 50))
+         :style :unicode-3d)
+  (System/exit 0))
 
 (comment
   ;; top 50 tracks
