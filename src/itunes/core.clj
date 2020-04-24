@@ -55,7 +55,7 @@
   (table (->> tracks
               (sort-by :play-count)
               reverse
-              (map #(select-keys % [:name :album :play-count]))
+              (map #(select-keys % [:name :album :artist :play-count]))
               (take 50))
          :style :unicode-3d)
   (System/exit 0))
